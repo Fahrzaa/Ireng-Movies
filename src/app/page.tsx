@@ -84,7 +84,7 @@ export default function Home() {
           < MovieSlider data={upcoming} cuyProps={gtwProps.tv} date={upcomingDate} loading={loading} />
         </div>
         <div className="flex w-full p-15 justify-center items-center">
-          <a onClick={handleScroll} href="#cihuy1">< BsArrowUpCircle size={"40"} className="animate-bounce" /></a>
+          <a href="#cihuy1">< BsArrowUpCircle size={"40"} className="animate-bounce" /></a>
         </div>
       </div>
     </>
