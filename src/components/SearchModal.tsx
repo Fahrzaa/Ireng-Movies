@@ -5,10 +5,21 @@ import { FiSearch } from 'react-icons/fi';
 import api from '@/api/api'; 
 import Link from 'next/link';
 
-export default function SearchModal({ onClose, isOpen }) {
-    const [searchTerm, setSearchTerm] = useState('');
-    const [results, setResults] = useState([]);
-    const [loading, setLoading] = useState(false);
+interface MovieSearchResult {
+    id: number;
+    title: string;
+    poster_path: string | null;
+    release_date?: string;
+    vote_average: number;
+}
+interface SearchModalProps {
+    onClose: () => void;
+    isOpen: boolean;
+}
+export default function SearchModal({ onClose, isOpen }: SearchModalProps) {
+    const [searchTerm, setSearchTerm] = useState<string>('');
+    const [results, setResults] = useState<MovieSearchResult[]>([]);
+    const [loading, setLoading] = useState<boolean>(false);
 
     useEffect(() => {
         const searchMovies = async () => {
@@ -52,6 +63,7 @@ export default function SearchModal({ onClose, isOpen }) {
                         <IoClose size={24} />
                     </button>
                 </div>
+
                 <div className="relative mb-8">
                     <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" size={20} />
                     <input
@@ -64,6 +76,7 @@ export default function SearchModal({ onClose, isOpen }) {
                     />
                     {loading && <div className='absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 border-2 border-red-600 border-t-transparent rounded-full animate-spin'></div>}
                 </div>
+
                 <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
                     {results.length > 0 ? (
                         results.map((movie) => (
@@ -74,12 +87,14 @@ export default function SearchModal({ onClose, isOpen }) {
                                 className="grid grid-cols-12 gap-4 items-center bg-zinc-900/40 hover:bg-zinc-900 border border-zinc-800/50 hover:border-red-600/50 p-3 rounded-xl cursor-pointer transition-all group"
                             >
                                 <div className="col-span-2 md:col-span-1 aspect-[2/3] bg-zinc-800 rounded-md overflow-hidden">
-                                    {movie.poster_path && (
+                                    {movie.poster_path ? (
                                         <img
                                             src={`https://image.tmdb.org/t/p/w92${movie.poster_path}`}
                                             alt={movie.title}
                                             className="w-full h-full object-cover group-hover:scale-110 transition-transform"
                                         />
+                                    ) : (
+                                        <div className="w-full h-full flex items-center justify-center text-[10px] text-zinc-600">No Image</div>
                                     )}
                                 </div>
                                 <div className="col-span-7 md:col-span-8">
