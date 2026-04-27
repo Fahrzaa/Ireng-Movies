@@ -3,17 +3,44 @@ import api from '@/api/api'
 import { useParams } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
 import YouTube from 'react-youtube'
-import { FaPlay, FaStar, FaRegClock, FaCalendarAlt, FaFire, FaExternalLinkAlt } from 'react-icons/fa'
+import { FaPlay, FaStar, FaCalendarAlt, FaFire, FaExternalLinkAlt } from 'react-icons/fa'
 import { SiNetflix } from 'react-icons/si'
 import { IoArrowBack } from 'react-icons/io5'
 import Link from 'next/link'
+interface Video {
+    type: string;
+    key: string;
+}
 
-export default function page() {
-    const [loading, setLoading] = useState(true)
+interface Genre {
+    id: number;
+    name: string;
+}
+
+interface MovieData {
+    id: number;
+    title: string;
+    backdrop_path: string;
+    poster_path: string;
+    status: string;
+    runtime: number;
+    tagline: string;
+    vote_average: number;
+    release_date: string;
+    popularity: number;
+    overview: string;
+    homepage: string;
+    genres: Genre[];
+    videos: {
+        results: Video[];
+    };
+}
+
+export default function Page() {
+    const [loading, setLoading] = useState<boolean>(true)
     const param = useParams()
-    const [data, setData] = useState(null)
-    const [showTrailer, setShowTrailer] = useState(false)
-
+    const [data, setData] = useState<MovieData | null>(null)
+    const [showTrailer, setShowTrailer] = useState<boolean>(false)
     useEffect(() => {
         const fetching = async () => {
             try {
@@ -35,15 +62,12 @@ export default function page() {
             <p className='text-white mt-4 font-medium animate-pulse'>PREPARING YOUR VERDICT...</p>
         </div>
     )
-
     if (!data) return <div className='h-screen bg-black flex items-center justify-center text-white'>Movie not found.</div>
-
-    const trailer = data.videos?.results?.find(vid => vid.type === "Trailer") || data.videos?.results[0];
-    const genres = data.genres?.map(g => g.name).join(", ");
+    const trailer = data.videos?.results?.find((vid: Video) => vid.type === "Trailer") || data.videos?.results[0];
+    const genres = data.genres?.map((g: Genre) => g.name).join(", ");
 
     return (
-        <div className="relative min-h-screen  bg-[#000000] text-white overflow-x-hidden font-sans">
-
+        <div className="relative min-h-screen bg-[#000000] text-white overflow-x-hidden font-sans">
             <div className="absolute inset-0 h-[70vh] w-full z-0">
                 <img
                     src={`https://image.tmdb.org/t/p/original${data.backdrop_path}`}
@@ -64,9 +88,8 @@ export default function page() {
                 </div>
             </nav>
 
-            <main className="relative gap z-10 container mx-auto px-6 lg:px-12 py-8 lg:py-16">
+            <main className="relative z-10 container mx-auto px-6 lg:px-12 py-8 lg:py-16">
                 <div className="flex flex-col lg:flex-row gap-12 items-center lg:items-start">
-
                     <div className="flex-1 space-y-6 animate-fade-in-left">
                         <div className="space-y-2">
                             <span className="text-red-600 font-bold tracking-[0.2em] text-sm uppercase animate-pulse">
@@ -75,7 +98,7 @@ export default function page() {
                             <h1 className="text-5xl lg:text-7xl font-extrabold tracking-tight leading-none">
                                 {data.title.toUpperCase()}
                             </h1>
-                            <p className="text-xl text-gray-400 italic font-light italic">"{data.tagline}"</p>
+                            {data.tagline && <p className="text-xl text-gray-400 italic font-light">"{data.tagline}"</p>}
                         </div>
 
                         <div className="flex flex-wrap gap-4 text-sm font-medium">
@@ -90,10 +113,10 @@ export default function page() {
                             </div>
                         </div>
 
-                        <p className="text-gray-300 font-medium">
-                            <span className="text-gray-500 uppercase text-xs block mb-1 tracking-widest">GENRES</span>
-                            {genres}
-                        </p>
+                        <div className="space-y-1">
+                            <span className="text-gray-500 uppercase text-xs block tracking-widest">GENRES</span>
+                            <p className="text-gray-300 font-medium">{genres}</p>
+                        </div>
 
                         <div className="space-y-3">
                             <span className="text-gray-500 uppercase text-xs block tracking-widest">STORYLINE</span>
@@ -105,7 +128,7 @@ export default function page() {
                         <div className="flex flex-col sm:flex-row gap-4 pt-3">
                             <button
                                 onClick={() => setShowTrailer(true)}
-                                className="flex items-center justify-center gap-3 bg-red-600 hover:bg-red-700 text-white md:px-14 px-8 py-4 rounded-xl font-bold transition-all transform hover:scale-105 active:scale-95 shadow-xl hover:shadow-red-600/20"
+                                className="flex items-center justify-center gap-3 bg-red-600 hover:bg-red-700 text-white md:px-14 px-8 py-4 rounded-xl font-bold transition-all transform hover:scale-105 active:scale-95 shadow-xl"
                             >
                                 <FaPlay /> WATCH TRAILER
                             </button>
@@ -123,7 +146,6 @@ export default function page() {
                     <div className="w-full ml-0 md:ml-35 max-w-[400px] lg:w-[450px] group animate-fade-in-right">
                         <div className="relative group transition-all duration-500">
                             <div className="absolute -inset-1 bg-gradient-to-r from-red-600 to-purple-600 rounded-3xl blur opacity-25 group-hover:opacity-50 transition duration-1000"></div>
-
                             <div className="relative aspect-[2/3] w-full rounded-2xl overflow-hidden border border-white/10 shadow-2xl">
                                 <img
                                     src={`https://image.tmdb.org/t/p/w500${data.poster_path}`}
@@ -133,7 +155,6 @@ export default function page() {
                             </div>
                         </div>
                     </div>
-
                 </div>
             </main>
 
@@ -156,18 +177,9 @@ export default function page() {
             )}
 
             <style jsx global>{`
-                @keyframes fade-in-left {
-                    from { opacity: 0; transform: translateX(-30px); }
-                    to { opacity: 1; transform: translateX(0); }
-                }
-                @keyframes fade-in-right {
-                    from { opacity: 0; transform: translateX(30px); }
-                    to { opacity: 1; transform: translateX(0); }
-                }
-                @keyframes fade-in {
-                    from { opacity: 0; }
-                    to { opacity: 1; }
-                }
+                @keyframes fade-in-left { from { opacity: 0; transform: translateX(-30px); } to { opacity: 1; transform: translateX(0); } }
+                @keyframes fade-in-right { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: translateX(0); } }
+                @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
                 .animate-fade-in-left { animation: fade-in-left 0.8s ease-out forwards; }
                 .animate-fade-in-right { animation: fade-in-right 0.8s ease-out forwards; }
                 .animate-fade-in { animation: fade-in 0.3s ease-out forwards; }
