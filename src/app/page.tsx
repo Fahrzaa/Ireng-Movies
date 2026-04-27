@@ -1,65 +1,101 @@
+"use client"
+
+import api from "@/api/api";
+import CardMovie from "@/components/CardMovie";
+import MovieSlider from "@/components/MovieSlider";
+import SearchModal from "@/components/SearchModal";
 import Image from "next/image";
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { BsArrowDown, BsArrowUpCircle } from "react-icons/bs";
+import { FaSearch } from "react-icons/fa";
 
 export default function Home() {
+
+  const [modal, setModal] = useState(false)
+  const [popular, setPopular] = useState([]);
+  const [topRated, setTopRated] = useState([]);
+  const [upcoming, setUpcoming] = useState([]);
+  const [upcomingDate, setUpcomingDate] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const gtwProps = {
+    popular: "Popular Movies",
+    rated: "Top Rated Movies",
+    tv: "TV Movies",
+  }
+
+  const handleScroll = (e) => {
+    e.preventDefault();
+    const element = document.getElementById("cihuy1");
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
+  useEffect(() => {
+    const fetching = async () => {
+      setLoading(true);
+      try {
+        const [resPopular, resTopRated, resUpcoming] = await Promise.all([
+          api.get("/movie/popular"),
+          api.get("/movie/top_rated"),
+          api.get("/tv/popular")
+        ]);
+
+        setPopular(resPopular.data)
+        setTopRated(resTopRated.data)
+        setUpcoming(resUpcoming.data)
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetching();
+  }, []);
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
+    <>
+      <div
+        style={{
+          backgroundImage: `linear-gradient(to bottom, rgba(0, 0, 0, 0.46) 0%, rgb(1, 1, 1) 60%), url('/jir.jpg')`
+        }}
+        className="flex items-center flex-col gap-5 bg-black/60 bg-blend-multipy bg-[url('/jir.jpg')] bg-center bg-cover h-screen w-full sm:px-10 px-3">
+
+        {modal ? < SearchModal isOpen={modal} onClose={() => setModal(!modal)} /> : ""}
+
+        <div className='flex items-center justify-between w-full p-4 px-5'>
+          <div className="flex items-center">
+            <img src="./icon.png" className="h-8 md:h-12" alt="" /> <h1 className='text-lg md:text-2xl tracking-tighter font-extrabold font-sm' >IRENG<span className='text-red-600 font-bold'>MOVIES</span> </h1>
+          </div>
+
+          <button onClick={() => {
+            setModal(!modal)
+          }} className="flex items-center rounded-full gap-2 hover:scale-107 transition-all tracking-tight rounded-lg bg-red-600 px-4 py-2 duration-300 hover:gap-3 text-sm md:text-md font-bold">SEARCH < FaSearch /></button>
+
+        </div>
+
+        <div id="cihuy1" className="flex px-5 pt-6 flex-col justify-start w-full">
+          <span className="font-playfair italic mb[-19px]">EXPLORE ANY MOVIES</span>
+          <h1 className="text-7xl tracking-tighter font-extrabold">FINAL <span className="text-red-600 underline">VERDICT</span></h1>
+          <span className="max-w-200 mt-4 mb-2">This website was meticulously crafted as a professional portfolio and a dedicated learning space to explore modern web technologies. Built with passion and continuous growth by : <Link href={"https://www.instagram.com/fahrezachill"} className="text-blue-500 font-bold underline hover:text-blue-600">-Rezaa.</Link></span>
+        </div>
+
+        <div className="w-full no-scrollbar">
+          <h1 className="flex justify-end mb-6 px-3">
+
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+          < MovieSlider cuyProps={gtwProps.popular} data={popular} loading={loading} />
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+        <div className="w-full no-scrollbar">
+          < MovieSlider cuyProps={gtwProps.rated} data={topRated} loading={loading} />
         </div>
-      </main>
-    </div>
+        <div className="w-full no-scrollbar">
+          < MovieSlider data={upcoming} cuyProps={gtwProps.tv} date={upcomingDate} loading={loading} />
+        </div>
+        <div className="flex w-full p-15 justify-center items-center">
+          <a onClick={handleScroll} href="#cihuy1">< BsArrowUpCircle size={"40"} className="animate-bounce" /></a>
+        </div>
+      </div>
+    </>
   );
 }
