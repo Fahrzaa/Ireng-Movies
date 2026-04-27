@@ -23,15 +23,6 @@ export default function Home() {
     rated: "Top Rated Movies",
     tv: "TV Movies",
   }
-
-  const handleScroll = (e) => {
-    e.preventDefault();
-    const element = document.getElementById("cihuy1");
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
-    }
-  };
-
   useEffect(() => {
     const fetching = async () => {
       setLoading(true);
